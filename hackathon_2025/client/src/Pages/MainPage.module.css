@@ -1,0 +1,52 @@
+.landing-text{
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+}
+.body-container{
+    width: 100vw;
+    background: linear-gradient(white, pink);
+}
+/* .home-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    overflow-y: hidden;
+} */
+.text-container{
+    /* text-align: center; */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.landing-container{
+    width: 100%;
+    height: calc(100vh - 50px);
+    display: flex;
+    align-items: center;
+}
+
+.me-auto{
+    background-color: red;
+}
+
+@media(max-width: 500px){
+    .landing-text{
+        font-size: 1.2rem;
+    }
+}
+
+@media(max-width: 1000px){
+    .landing-text{
+        font-size: 2rem;
+    }
+}
+
+@media(min-width: 1001px){
+    .landing-text{
+        font-size: 2.2rem;
+    }
+}
