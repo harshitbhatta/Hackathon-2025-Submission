@@ -8,8 +8,10 @@ import { FaUpload } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import image from "../assets/Dashboard_design_vector_illustration_concept_generated-removebg-preview.png";
 import axios from 'axios';
+import { useState, useEffect } from "react";
 
 const MainPage = () => {
+    const [data, setData] = useState([]);
     const navigate = useNavigate();
     const triggerFileInput = () => {
         document.getElementById('fileUpload').click();
@@ -39,6 +41,7 @@ const MainPage = () => {
                 console.error('Error uploading file:', error);
             }
         }
+        
     };
     return(
         <>
