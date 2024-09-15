@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+    <script>
+        Plotly.d3.csv('df_performance.csv', function (err, data) {
+            var all_dates = [...new Set(data.map(d => d['Log.Event Dt']))]; // Get all unique dates
+            var daily_performance = {};
+            
+            // Define colors for each fleet (copied from bubble visualization)
+            var colors = {
+                "Frac 08": 'blue',
+                "Frac 10": 'orange',
+                "Frac 18": 'green',
+                "Frac 21": 'red',
+                "Frac 32": 'purple',
+                "Frac 38": 'brown',
+                "Frac 39": 'pink',
+                "Frac 40": 'gray',
+                "Frac 90": 'yellow'
+            };
+
+            // Prepare data for each day
+            all_dates.forEach(function (date) {
+                daily_performance[date] = [];
+            });
+
+            data.forEach(function (d) {
+                var performance = Math.min(d['Performance'] * 100, 100);  // Cap performance at 100%
+                daily_performance[d['Log.Event Dt']].push({
+                    fleet: d['Fleet Name'],
+                    performance: performance
+                });
+            });
+
+            // Sort fleets by performance for each day
+            for (var date in daily_performance) {
+                daily_performance[date].sort(function (a, b) {
+                    return a.performance - b.performance; // Sort by performance, low to high
+                });
+            }
+
+            // Create frames for each day
+            var frames = [];
+            all_dates.forEach(function (date) {
+                var sorted_fleets = daily_performance[date].map(d => d.fleet);
+                var sorted_performance = daily_performance[date].map(d => d.performance);
+                var fleet_colors = sorted_fleets.map(fleet => colors[fleet]);
+
+                frames.push({
+                    name: date,
+                    data: [{
+                        x: sorted_fleets,
+                        y: sorted_performance,
+                        type: 'bar',
+                        marker: {color: fleet_colors},
+                        text: sorted_fleets
+                    }]
+                });
+            });
+
+            // Create slider steps for each frame
+            var sliderSteps = [];
+            all_dates.forEach(function (date) {
+                sliderSteps.push({
+                    method: 'animate',
+                    label: date,
+                    args: [[date], {
+                        mode: 'immediate',
+                        transition: { duration: 50 },
+                        frame: { duration: 300, redraw: false }
+                    }]
+                });
+            });
+
+            // Define layout
+            var layout = {
+                yaxis: { title: 'Performance (%)', range: [0, 100] },
+                height: 600,  // Increase height of the plot
+                width: 900,
+                hovermode: 'closest',
+                showlegend: false,  // Disable default legend
+                updatemenus: [{
+                    x: 0,
+                    y: 0,
+                    yanchor: 'top',
+                    xanchor: 'left',
+                    showactive: false,
+                    direction: 'left',
+                    type: 'buttons',
+                    pad: {t: 87, r: 10},
+                    buttons: [{
+                        method: 'animate',
+                        args: [null, {
+                            mode: 'immediate',
+                            fromcurrent: true,
+                            transition: { duration: 300 },
+                            frame: { duration: 500, redraw: false }
+                        }],
+                        label: 'Play'
+                    }, {
+                        method: 'animate',
+                        args: [[null], {
+                            mode: 'immediate',
+                            transition: { duration: 0 },
+                            frame: { duration: 0, redraw: false }
+                        }],
+                        label: 'Pause'
+                    }]
+                }],
+                sliders: [{
+                    pad: { l: 130, t: 55 },
+                    currentvalue: {
+                        visible: true,
+                        prefix: 'Date:',
+                        xanchor: 'right',
+                        font: { size: 20, color: '#666' }
+                    },
+                    steps: sliderSteps
+                }]
+            };
+
+            // Create the initial plot
+            Plotly.plot('myDiv', {
+                data: frames[0].data,
+                layout: layout,
+                frames: frames,
+                config: { showSendToCloud: true }
+            });
+        });
+    </script>
+</body>
+</html>
